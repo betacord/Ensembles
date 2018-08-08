@@ -2,7 +2,7 @@
 #include <gmock/gmock.h>
 #include <cmath>
 
-#include "../include/Metrics.h"
+#include "../include/Shared/Metrics.h"
 
 using testing::Eq;
 

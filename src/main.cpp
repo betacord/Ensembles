@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "../include/Knn.h"
-#include "../include/Metrics.h"
+#include "../include/Classifiers/Knn/Knn.h"
+#include "../include/Shared/Metrics.h"
 
 
 int main(int argc, char* argv[]) {

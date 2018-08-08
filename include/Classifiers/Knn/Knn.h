@@ -5,8 +5,8 @@
 #include <string>
 #include <vector>
 
-#include "DecisionSystem.h"
-#include "Metrics.h"
+#include "../../DecisionSystem/DecisionSystem.h"
+#include "../../Shared/Metrics.h"
 #include "KnnScore.h"
 
 
@@ -23,13 +23,13 @@ private:
     V classifyObject(std::vector<T>, U (*metric)(std::vector<T>, std::vector<T>), unsigned long int);
 
 public:
-    Knn(std::string, char, int);
+    Knn(std::string, char, unsigned long int);
     KnnScore<V> fit(DecisionSystem<T, V>, U (*metric)(std::vector<T>, std::vector<T>), unsigned long int);
 };
 
 
 template <typename T, typename V, typename U>
-Knn<T, V, U>::Knn(std::string fileName, char delimitter, int decisionCol) {
+Knn<T, V, U>::Knn(std::string fileName, char delimitter, unsigned long int decisionCol) {
 
     this->ds = new DecisionSystem<T, V>(fileName, delimitter, decisionCol);
 
@@ -87,7 +87,7 @@ V Knn<T, V, U>::getDecision(std::vector<std::vector<U>> distances, std::vector<V
 
     minVal = sums[0];
 
-    for (int i = 0; i < sums.size(); i++) {
+    for (unsigned long int i = 0; i < sums.size(); i++) {
         if (sums[i] < minVal) {
             minVal = sums[i];
             minId = i;
@@ -127,7 +127,7 @@ KnnScore<V> Knn<T, V, U>::fit(DecisionSystem<T, V> testSystem, U (*metric)(std::
 
     std::vector<V> classifiedDecisions;
 
-    for (long int i = 0; i < testSystem.getObjectCount(); i++) {
+    for (unsigned long int i = 0; i < testSystem.getObjectCount(); i++) {
         classifiedDecisions.push_back(this->classifyObject(testSystem.getObjectById(i), metric, k));
     }
 

@@ -7,7 +7,7 @@
 #include <fstream>
 #include <vector>
 #include <algorithm>
-#include "SharedMethods.h"
+#include "../Shared/SharedMethods.h"
 
 
 template <typename T, typename V>
@@ -24,21 +24,21 @@ private:
     V getDecisionByObjectId(unsigned long int);
 
 public:
-    DecisionSystem(std::string, char, int);
+    DecisionSystem(std::string, char, unsigned long int);
     std::vector<std::vector<T>> getAll();
-    T get(int, int);
+    T get(unsigned long int, unsigned long int);
     unsigned long int getObjectCount();
     unsigned long int getPredictorCount();
-    std::vector<T> getPredictor(long int);
+    std::vector<T> getPredictor(unsigned long int);
     std::vector<V> getDecisionVector();
     std::vector<V> getDecisionClasses();
     std::vector<std::vector<T>> getObjectsByDecisionClass(V);
-    std::vector<T> getObjectById(long int);
+    std::vector<T> getObjectById(unsigned long int);
 };
 
 
 template <typename T, typename V>
-DecisionSystem<T, V>::DecisionSystem(std::string fileName, char delimitter, int decisionCol) : decisionCol(decisionCol) {
+DecisionSystem<T, V>::DecisionSystem(std::string fileName, char delimitter, unsigned long int decisionCol) : decisionCol(decisionCol) {
 
     this->readTxtFile(fileName, delimitter);
 }
@@ -68,7 +68,7 @@ std::vector<T> DecisionSystem<T, V>::split(const std::string &str, char delimitt
     std::stringstream ss(str);
     std::string number;
 
-    long int i = 0;
+    unsigned long int i = 0;
 
     while(std::getline(ss, number, delimitter)) {
         if (i == this->decisionCol) {
@@ -102,18 +102,18 @@ unsigned long int DecisionSystem<T, V>::getPredictorCount() {
 }
 
 template<typename T, typename V>
-T DecisionSystem<T, V>::get(int row, int col) {
+T DecisionSystem<T, V>::get(unsigned long int row, unsigned long int col) {
 
     return this->ds[row][col];
 }
 
 template<typename T, typename V>
-std::vector<T> DecisionSystem<T, V>::getPredictor(long int index) {
+std::vector<T> DecisionSystem<T, V>::getPredictor(unsigned long int index) {
 
     std::vector<T> result;
     result.reserve(this->ds.size());
 
-    for (int i = 0; i < this->ds.size(); i++) {
+    for (unsigned long int i = 0; i < this->ds.size(); i++) {
         result.push_back(this->ds[i][index]);
     }
 
@@ -138,7 +138,7 @@ std::vector<V> DecisionSystem<T, V>::getDecisionClasses() {
 }
 
 template<typename T, typename V>
-std::vector<T> DecisionSystem<T, V>::getObjectById(long int objectId) {
+std::vector<T> DecisionSystem<T, V>::getObjectById(unsigned long int objectId) {
 
     std::vector<T> result = this->ds[objectId];
 
@@ -158,7 +158,7 @@ std::vector<std::vector<T>> DecisionSystem<T, V>::getObjectsByDecisionClass(V de
 
     std::vector<std::vector<T>> result;
 
-    for (long int i = 0; i < this->ds.size(); i++) {
+    for (unsigned long int i = 0; i < this->ds.size(); i++) {
         if (getDecisionByObjectId(i) == decisionClass) {
             result.push_back(this->getObjectById(i));
         }

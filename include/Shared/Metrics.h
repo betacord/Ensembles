@@ -18,7 +18,7 @@ U Metrics<T, U>::euclidean(std::vector<T> test, std::vector<T> train) {
 
     T score = 0;
 
-    for (int i = 0; i < test.size(); i++) {
+    for (unsigned long int i = 0; i < test.size(); i++) {
         score +=  pow(test[i] - train[i], 2);
     }
 

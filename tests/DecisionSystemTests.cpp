@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "../include/DecisionSystem.h"
+#include "../include/DecisionSystem/DecisionSystem.h"
 
 using testing::Eq;
 

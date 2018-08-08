@@ -7,6 +7,6 @@ add_subdirectory(lib/googletest)
 include_directories(lib/googletest/googletest/include)
 include_directories(lib/googletest/googlemock/include)
 
-add_executable(ensembles src/main.cpp include/DecisionSystem.h tests/DecisionSystemTests.cpp include/Knn.h include/Metrics.h tests/MetricsTests.cpp include/SharedMethods.h tests/KnnTests.cpp include/KnnScore.h)
+add_executable(ensembles src/main.cpp include/DecisionSystem/DecisionSystem.h tests/DecisionSystemTests.cpp include/Classifiers/Knn/Knn.h include/Shared/Metrics.h tests/MetricsTests.cpp include/Shared/SharedMethods.h tests/KnnTests.cpp include/Classifiers/Knn/KnnScore.h)
 
 target_link_libraries(ensembles gtest gtest_main)
