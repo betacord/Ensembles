@@ -85,7 +85,7 @@ std::vector<T> DecisionSystem<T, V>::split(const std::string &str, char delimitt
 
     unsigned long int i = 0;
 
-    while(std::getline(ss, number, delimitter)) {
+    while (std::getline(ss, number, delimitter)) {
         if (i == this->decisionCol) {
             this->decisionVec.push_back(number);
         } else {

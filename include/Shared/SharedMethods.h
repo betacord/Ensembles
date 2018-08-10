@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <unordered_map>
+#include <sstream>
 
 template <typename V>
 class SharedMethods {
