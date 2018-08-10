@@ -10,7 +10,7 @@
 #include "KnnScore.h"
 
 
-template <typename T, typename V, typename U>
+template<typename T, typename V, typename U>
 class Knn {
 
 private:
@@ -24,6 +24,7 @@ private:
 
 public:
     Knn(std::string, char, unsigned long int);
+    Knn(DecisionSystem<T, V>);
     KnnScore<V> fit(DecisionSystem<T, V>, U (*metric)(std::vector<T>, std::vector<T>), unsigned long int);
 };
 
@@ -32,8 +33,12 @@ template <typename T, typename V, typename U>
 Knn<T, V, U>::Knn(std::string fileName, char delimitter, unsigned long int decisionCol) {
 
     this->ds = new DecisionSystem<T, V>(fileName, delimitter, decisionCol);
+}
 
-    std::vector<T> test { 2, 4, 2, 1 };
+template<typename T, typename V, typename U>
+Knn<T, V, U>::Knn(DecisionSystem<T, V> ds) {
+
+    this->ds = new DecisionSystem<T, V>(ds);
 }
 
 template<typename T, typename V, typename U>

@@ -7,6 +7,7 @@
 #include <fstream>
 #include <vector>
 #include <algorithm>
+
 #include "../Shared/SharedMethods.h"
 
 
@@ -25,6 +26,7 @@ private:
 
 public:
     DecisionSystem(std::string, char, unsigned long int);
+    DecisionSystem(std::vector<std::vector<T>>, std::vector<V>, unsigned long int);
     std::vector<std::vector<T>> getAll();
     T get(unsigned long int, unsigned long int);
     unsigned long int getObjectCount();
@@ -34,6 +36,9 @@ public:
     std::vector<V> getDecisionClasses();
     std::vector<std::vector<T>> getObjectsByDecisionClass(V);
     std::vector<T> getObjectById(unsigned long int);
+    std::vector<std::vector<T>> getObjectsById(std::vector<unsigned long int>);
+    std::vector<V> getDecisionsById(std::vector<unsigned long int>);
+    DecisionSystem<T, V> getDecisionSystemByIds(std::vector<unsigned long int>);
 };
 
 
@@ -53,6 +58,16 @@ void DecisionSystem<T, V>::readTxtFile(std::string fileName, char delimitter) {
 
         this->addRow(v);
     }
+}
+
+template<typename T, typename V>
+DecisionSystem<T, V>::DecisionSystem(std::vector<std::vector<T>> objects, std::vector<V> decisions, unsigned long int decisionCol)
+    : decisionCol(decisionCol) {
+
+        for (unsigned long int i = 0; i < objects.size(); i++) {
+            this->ds.push_back(objects[i]);
+            this->decisionVec.push_back(decisions[i]);
+        }
 }
 
 template <typename T, typename V>
@@ -165,6 +180,41 @@ std::vector<std::vector<T>> DecisionSystem<T, V>::getObjectsByDecisionClass(V de
     }
 
     return result;
+}
+
+template<typename T, typename V>
+std::vector<std::vector<T>> DecisionSystem<T, V>::getObjectsById(std::vector<unsigned long int> ids) {
+
+    std::vector<std::vector<T>> objects = {};
+
+    for (unsigned long int i : ids) {
+        objects.push_back(this->getObjectById(i));
+    }
+
+    return objects;
+}
+
+template<typename T, typename V>
+std::vector<V> DecisionSystem<T, V>::getDecisionsById(std::vector<unsigned long int> ids) {
+
+    std::vector<V> decisions = {};
+
+    for (unsigned long int i : ids) {
+        decisions.push_back(this->getDecisionByObjectId(i));
+    }
+
+    return decisions;
+}
+
+template<typename T, typename V>
+DecisionSystem<T, V> DecisionSystem<T, V>::getDecisionSystemByIds(std::vector<unsigned long int> objectsId) {
+
+    std::vector<std::vector<T>> objects = this->getObjectsById(objectsId);
+    std::vector<V> decisions = this->getDecisionsById(objectsId);
+
+    DecisionSystem<T, V> decisionSystem(objects, decisions, this->decisionCol);
+
+    return decisionSystem;
 }
 
 

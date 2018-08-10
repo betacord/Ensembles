@@ -3,6 +3,7 @@
 
 #include "../include/Classifiers/Knn/Knn.h"
 #include "../include/Shared/Metrics.h"
+#include "../include/Validators/Bootstrap/Bootstrap.h"
 
 
 int main(int argc, char* argv[]) {

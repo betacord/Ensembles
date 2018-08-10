@@ -3,6 +3,7 @@
 
 #include <iostream>
 
+#include "../../Shared/SharedMethods.h"
 
 template <typename V>
 class KnnScore {
@@ -19,6 +20,7 @@ private:
 public:
     KnnScore(std::vector<V>, std::vector<V>);
     double getTPR(V);
+    double getGlobalTPR();
     double getAccuracy(V);
     double getCoverage(V);
 };
@@ -96,6 +98,22 @@ double KnnScore<V>::getTPR(V decisionClass) {
     unsigned long int falseClassified = this->getFalseClassified(decisionClass);
 
     return (double)trueClassified / (trueClassified + falseClassified);
+}
+
+template<typename V>
+double KnnScore<V>::getGlobalTPR() {
+
+    std::vector<V> uniqueDecisions = SharedMethods<V>::getUniqueElements(this->realDecisions);
+
+    unsigned long int globalTrueClassified = 0;
+    unsigned long int globalFalseClassified = 0;
+
+    for (V decisionClass : uniqueDecisions) {
+        globalTrueClassified += this->getTrueClassified(decisionClass);
+        globalFalseClassified += this->getFalseClassified(decisionClass);
+    }
+
+    return (double)globalTrueClassified / (globalTrueClassified + globalFalseClassified);
 }
 
 template<typename V>
