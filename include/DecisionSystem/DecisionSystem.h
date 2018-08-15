@@ -25,6 +25,7 @@ private:
     V getDecisionByObjectId(unsigned long int);
 
 public:
+    DecisionSystem();
     DecisionSystem(std::string, char, unsigned long int);
     DecisionSystem(std::vector<std::vector<T>>, std::vector<V>, unsigned long int);
     std::vector<std::vector<T>> getAll();
@@ -41,6 +42,10 @@ public:
     DecisionSystem<T, V> getDecisionSystemByIds(std::vector<unsigned long int>);
 };
 
+template<typename T, typename V>
+DecisionSystem<T, V>::DecisionSystem() {
+
+}
 
 template <typename T, typename V>
 DecisionSystem<T, V>::DecisionSystem(std::string fileName, char delimitter, unsigned long int decisionCol) : decisionCol(decisionCol) {

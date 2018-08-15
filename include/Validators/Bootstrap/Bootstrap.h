@@ -15,13 +15,18 @@ class Bootstrap {
 
 private:
     DecisionSystem<T, V> *ds;
+    std::vector<unsigned long int> trainingObjectsId;
+    std::vector<unsigned long int> testObjectsId;
 
     std::vector<unsigned long int> getTrainingIds();
     std::vector<unsigned long int> getTestIds(std::vector<unsigned long int>);
 
 public:
     Bootstrap(DecisionSystem<T, V>);
+    Bootstrap(DecisionSystem<T, V>*);
     std::tuple<unsigned long int, double> getBestK(unsigned long int, unsigned long int, U (*metric)(std::vector<T>, std::vector<T>));
+    DecisionSystem<T, V> getTrainingSet();
+    DecisionSystem<T, V> getTestSet();
 };
 
 
@@ -29,6 +34,18 @@ template<typename T, typename V, typename U>
 Bootstrap<T, V, U>::Bootstrap(DecisionSystem<T, V> decisionSystem) {
 
     this->ds = new DecisionSystem<T, V>(decisionSystem);
+
+    this->trainingObjectsId = SharedMethods<unsigned long int>::getUniqueElements(this->getTrainingIds());
+    this->testObjectsId = this->getTestIds(this->trainingObjectsId);
+}
+
+template<typename T, typename V, typename U>
+Bootstrap<T, V, U>::Bootstrap(DecisionSystem<T, V> *decisionSystem) {
+
+    this->ds = decisionSystem;
+
+    this->trainingObjectsId = SharedMethods<unsigned long int>::getUniqueElements(this->getTrainingIds());
+    this->testObjectsId = this->getTestIds(this->trainingObjectsId);
 }
 
 template<typename T, typename V, typename U>
@@ -63,11 +80,8 @@ std::vector<unsigned long int> Bootstrap<T, V, U>::getTestIds(std::vector<unsign
 template<typename T, typename V, typename U>
 std::tuple<unsigned long int, double> Bootstrap<T, V, U>::getBestK(unsigned long int minK, unsigned long int maxK, U (*metric)(std::vector<T>, std::vector<T>)) {
 
-    std::vector<unsigned long int> trainingObjectsId = SharedMethods<unsigned long int>::getUniqueElements(this->getTrainingIds());
-    std::vector<unsigned long int> testObjectsId = this->getTestIds(trainingObjectsId);
-
-    DecisionSystem<T, V> trainingSystem = this->ds->getDecisionSystemByIds(trainingObjectsId);
-    DecisionSystem<T, V> testSystem = this->ds->getDecisionSystemByIds(testObjectsId);
+    DecisionSystem<T, V> trainingSystem = this->ds->getDecisionSystemByIds(this->trainingObjectsId);
+    DecisionSystem<T, V> testSystem = this->ds->getDecisionSystemByIds(this->testObjectsId);
 
     std::unordered_map<unsigned long int, double> scores = {};
 
@@ -79,14 +93,28 @@ std::tuple<unsigned long int, double> Bootstrap<T, V, U>::getBestK(unsigned long
     }
 
     double maxTpr = 0;
+    unsigned long int iOfMaxTpr = 0;
 
     for (auto& score : scores) {
         if (score.second > maxTpr) {
-            return std::make_tuple(score.first, score.second);
+            iOfMaxTpr = score.first;
+            maxTpr = score.second;
         }
     }
 
-    return std::make_tuple(0, 0);
+    return std::make_tuple(iOfMaxTpr, maxTpr);
+}
+
+template<typename T, typename V, typename U>
+DecisionSystem<T, V> Bootstrap<T, V, U>::getTrainingSet() {
+
+    return this->ds->getDecisionSystemByIds(this->trainingObjectsId);
+}
+
+template<typename T, typename V, typename U>
+DecisionSystem<T, V> Bootstrap<T, V, U>::getTestSet() {
+
+    return this->ds->getDecisionSystemByIds(this->testObjectsId);
 }
 
 
