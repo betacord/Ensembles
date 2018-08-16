@@ -9,9 +9,9 @@ TEST(Bagging, BestKAndGlobalTPRAreGood) {
 
     DecisionSystem<float, std::string> decisionSystem("iris.data.csv", ',', 4);
 
-    Bagging<float, std::string, float> bagging(decisionSystem);
+    Bagging<float, std::string, float> bagging(&decisionSystem);
 
-    auto bestScores = bagging.findBestK(10, 5, 10, (Metrics<float, float>::euclidean));
+    auto bestScores = bagging.findBestK(50, 5, 40, (Metrics<float, float>::euclidean));
 
     unsigned long int bestK = std::get<0>(bestScores);
     double bestScore = std::get<1>(bestScores).getGlobalTPR();
