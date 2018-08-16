@@ -16,17 +16,16 @@ class Knn {
 private:
     DecisionSystem<T, V> *ds;
 
-    std::vector<U> calculateDistance(std::vector<T>, std::vector<std::vector<T>>, U (*metric)(std::vector<T>, std::vector<T>));
-    std::vector<U> getFirstKElements(std::vector<U>, unsigned long int);
-    V getDecision(std::vector<std::vector<U>>, std::vector<V>);
-    bool checkUniqueDistances(std::vector<U>);
-    V classifyObject(std::vector<T>, U (*metric)(std::vector<T>, std::vector<T>), unsigned long int);
+    std::vector<U> calculateDistance(std::vector<T>*, std::vector<std::vector<T>>, U (*metric)(std::vector<T>*, std::vector<T>*));
+    std::vector<U> getFirstKElements(std::vector<U>*, unsigned long int);
+    V getDecision(std::vector<std::vector<U>>, std::vector<V>*);
+    bool checkUniqueDistances(std::vector<U>*);
+    V classifyObject(std::vector<T>*, U (*metric)(std::vector<T>*, std::vector<T>*), unsigned long int);
 
 public:
     Knn(std::string, char, unsigned long int);
-    explicit Knn(DecisionSystem<T, V>);
     explicit Knn(DecisionSystem<T, V>*);
-    KnnScore<V> fit(DecisionSystem<T, V>, U (*metric)(std::vector<T>, std::vector<T>), unsigned long int);
+    KnnScore<V> fit(DecisionSystem<T, V>*, U (*metric)(std::vector<T>*, std::vector<T>*), unsigned long int);
 };
 
 
@@ -37,34 +36,28 @@ Knn<T, V, U>::Knn(std::string fileName, char delimitter, unsigned long int decis
 }
 
 template<typename T, typename V, typename U>
-Knn<T, V, U>::Knn(DecisionSystem<T, V> ds) {
-
-    this->ds = new DecisionSystem<T, V>(ds);
-}
-
-template<typename T, typename V, typename U>
 Knn<T, V, U>::Knn(DecisionSystem<T, V> *ds) {
 
     this->ds = ds;
 }
 
 template<typename T, typename V, typename U>
-std::vector<U> Knn<T, V, U>::calculateDistance(std::vector<T> testObject, std::vector<std::vector<T>> trainObjects,
-                                            U (*metric)(std::vector<T>, std::vector<T>)) {
+std::vector<U> Knn<T, V, U>::calculateDistance(std::vector<T> *testObject, std::vector<std::vector<T>> trainObjects,
+                                            U (*metric)(std::vector<T> *, std::vector<T> *)) {
 
     std::vector<U> results;
 
     for (std::vector<T> object : trainObjects) {
-        results.push_back(metric(testObject, object));
+        results.push_back(metric(testObject, &object));
     }
 
     return results;
 }
 
 template<typename T, typename V, typename U>
-std::vector<U> Knn<T, V, U>::getFirstKElements(std::vector<U> vec, unsigned long int k) {
+std::vector<U> Knn<T, V, U>::getFirstKElements(std::vector<U> *vec, unsigned long int k) {
 
-    std::vector<U> result(vec);
+    std::vector<U> result(*vec);
 
     std::sort(result.begin(), result.end(), [](const T lhs, const T rhs )
     {
@@ -77,7 +70,7 @@ std::vector<U> Knn<T, V, U>::getFirstKElements(std::vector<U> vec, unsigned long
 }
 
 template<typename T, typename V, typename U>
-V Knn<T, V, U>::getDecision(std::vector<std::vector<U>> distances, std::vector<V> decisions) {
+V Knn<T, V, U>::getDecision(std::vector<std::vector<U>> distances, std::vector<V> *decisions) {
 
     std::vector<U> sums;
     U minVal = U();
@@ -93,7 +86,7 @@ V Knn<T, V, U>::getDecision(std::vector<std::vector<U>> distances, std::vector<V
         sums.push_back(sum);
     }
 
-    if (!this->checkUniqueDistances(sums)) {
+    if (!this->checkUniqueDistances(&sums)) {
         return V();
     }
 
@@ -106,13 +99,13 @@ V Knn<T, V, U>::getDecision(std::vector<std::vector<U>> distances, std::vector<V
         }
     }
 
-    return decisions[minId];
+    return decisions->at(minId);
 }
 
 template<typename T, typename V, typename U>
-bool Knn<T, V, U>::checkUniqueDistances(std::vector<U> distances) {
+bool Knn<T, V, U>::checkUniqueDistances(std::vector<U> *distances) {
 
-    std::vector<U> uniqueDistances(distances);
+    std::vector<U> uniqueDistances(*distances);
 
     std::sort(uniqueDistances.begin(), uniqueDistances.end());
     uniqueDistances.erase(std::unique(uniqueDistances.begin(), uniqueDistances.end()), uniqueDistances.end());
@@ -121,29 +114,32 @@ bool Knn<T, V, U>::checkUniqueDistances(std::vector<U> distances) {
 }
 
 template<typename T, typename V, typename U>
-V Knn<T, V, U>::classifyObject(std::vector<T> testObject, U (*metric)(std::vector<T>, std::vector<T>), unsigned long int k) {
+V Knn<T, V, U>::classifyObject(std::vector<T> *testObject, U (*metric)(std::vector<T> *, std::vector<T> *), unsigned long int k) {
 
     std::vector<std::vector<U>> distances;
+    std::vector<U> distance;
     std::vector<V> decisionClasses = this->ds->getDecisionClasses();
 
     for (V decisionClass : decisionClasses) {
-        std::vector<U> distance = this->calculateDistance(testObject, this->ds->getObjectsByDecisionClass(decisionClass), metric);
-        distances.push_back(this->getFirstKElements(distance, k));
+        distance = this->calculateDistance(testObject, this->ds->getObjectsByDecisionClass(decisionClass), metric);
+        distances.push_back(this->getFirstKElements(&distance, k));
     }
 
-    return this->getDecision(distances, decisionClasses);
+    return this->getDecision(distances, &decisionClasses);
 }
 
 template<typename T, typename V, typename U>
-KnnScore<V> Knn<T, V, U>::fit(DecisionSystem<T, V> testSystem, U (*metric)(std::vector<T>, std::vector<T>), unsigned long int k) {
+KnnScore<V> Knn<T, V, U>::fit(DecisionSystem<T, V> *testSystem, U (*metric)(std::vector<T> *, std::vector<T> *), unsigned long int k) {
 
     std::vector<V> classifiedDecisions;
+    std::vector<T> testObject;
 
-    for (unsigned long int i = 0; i < testSystem.getObjectCount(); i++) {
-        classifiedDecisions.push_back(this->classifyObject(testSystem.getObjectById(i), metric, k));
+    for (unsigned long int i = 0; i < testSystem->getObjectCount(); i++) {
+        testObject = testSystem->getObjectById(i);
+        classifiedDecisions.push_back(this->classifyObject(&testObject, metric, k));
     }
 
-    return KnnScore<V>(classifiedDecisions, testSystem.getDecisionVector());
+    return KnnScore<V>(classifiedDecisions, testSystem->getDecisionVector());
 }
 
 

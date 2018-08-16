@@ -19,25 +19,15 @@ private:
     std::vector<unsigned long int> testObjectsId;
 
     std::vector<unsigned long int> getTrainingIds();
-    std::vector<unsigned long int> getTestIds(std::vector<unsigned long int>);
+    std::vector<unsigned long int> getTestIds(std::vector<unsigned long int>*);
 
 public:
-    Bootstrap(DecisionSystem<T, V>);
-    Bootstrap(DecisionSystem<T, V>*);
-    std::tuple<unsigned long int, double> getBestK(unsigned long int, unsigned long int, U (*metric)(std::vector<T>, std::vector<T>));
+    explicit Bootstrap(DecisionSystem<T, V>*);
+    std::tuple<unsigned long int, double> getBestK(unsigned long int, unsigned long int, U (*metric)(std::vector<T>*, std::vector<T>*));
     DecisionSystem<T, V> getTrainingSet();
     DecisionSystem<T, V> getTestSet();
 };
 
-
-template<typename T, typename V, typename U>
-Bootstrap<T, V, U>::Bootstrap(DecisionSystem<T, V> decisionSystem) {
-
-    this->ds = new DecisionSystem<T, V>(decisionSystem);
-
-    this->trainingObjectsId = SharedMethods<unsigned long int>::getUniqueElements(this->getTrainingIds());
-    this->testObjectsId = this->getTestIds(this->trainingObjectsId);
-}
 
 template<typename T, typename V, typename U>
 Bootstrap<T, V, U>::Bootstrap(DecisionSystem<T, V> *decisionSystem) {
@@ -45,7 +35,7 @@ Bootstrap<T, V, U>::Bootstrap(DecisionSystem<T, V> *decisionSystem) {
     this->ds = decisionSystem;
 
     this->trainingObjectsId = SharedMethods<unsigned long int>::getUniqueElements(this->getTrainingIds());
-    this->testObjectsId = this->getTestIds(this->trainingObjectsId);
+    this->testObjectsId = this->getTestIds(&this->trainingObjectsId);
 }
 
 template<typename T, typename V, typename U>
@@ -64,12 +54,12 @@ std::vector<unsigned long int> Bootstrap<T, V, U>::getTrainingIds() {
 }
 
 template<typename T, typename V, typename U>
-std::vector<unsigned long int> Bootstrap<T, V, U>::getTestIds(std::vector<unsigned long int> trainingIds) {
+std::vector<unsigned long int> Bootstrap<T, V, U>::getTestIds(std::vector<unsigned long int> *trainingIds) {
 
     std::vector<unsigned long int> samples = {};
 
     for (unsigned long int i = 0; i < this->ds->getObjectCount(); i++) {
-        if (std::find(trainingIds.begin(), trainingIds.end(), i) != trainingIds.end() == false) {
+        if (std::find(trainingIds->begin(), trainingIds->end(), i) != trainingIds->end() == false) {
             samples.push_back(i);
         }
     }
@@ -78,17 +68,17 @@ std::vector<unsigned long int> Bootstrap<T, V, U>::getTestIds(std::vector<unsign
 }
 
 template<typename T, typename V, typename U>
-std::tuple<unsigned long int, double> Bootstrap<T, V, U>::getBestK(unsigned long int minK, unsigned long int maxK, U (*metric)(std::vector<T>, std::vector<T>)) {
+std::tuple<unsigned long int, double> Bootstrap<T, V, U>::getBestK(unsigned long int minK, unsigned long int maxK, U (*metric)(std::vector<T> *, std::vector<T> *)) {
 
-    DecisionSystem<T, V> trainingSystem = this->ds->getDecisionSystemByIds(this->trainingObjectsId);
-    DecisionSystem<T, V> testSystem = this->ds->getDecisionSystemByIds(this->testObjectsId);
+    DecisionSystem<T, V> trainingSystem = this->ds->getDecisionSystemByIds(&this->trainingObjectsId);
+    DecisionSystem<T, V> testSystem = this->ds->getDecisionSystemByIds(&this->testObjectsId);
 
     std::unordered_map<unsigned long int, double> scores = {};
 
     for (unsigned long int i = 0; i < (maxK - minK + 1); i++) {
-        Knn<T, V, U> knn(trainingSystem);
+        Knn<T, V, U> knn(&trainingSystem);
         unsigned long int currentK = i + minK;
-        double tpr = knn.fit(testSystem, metric, currentK).getGlobalTPR();
+        double tpr = knn.fit(&testSystem, metric, currentK).getGlobalTPR();
         scores.insert({currentK, tpr});
     }
 
@@ -108,13 +98,13 @@ std::tuple<unsigned long int, double> Bootstrap<T, V, U>::getBestK(unsigned long
 template<typename T, typename V, typename U>
 DecisionSystem<T, V> Bootstrap<T, V, U>::getTrainingSet() {
 
-    return this->ds->getDecisionSystemByIds(this->trainingObjectsId);
+    return this->ds->getDecisionSystemByIds(&this->trainingObjectsId);
 }
 
 template<typename T, typename V, typename U>
 DecisionSystem<T, V> Bootstrap<T, V, U>::getTestSet() {
 
-    return this->ds->getDecisionSystemByIds(this->testObjectsId);
+    return this->ds->getDecisionSystemByIds(&this->testObjectsId);
 }
 
 
