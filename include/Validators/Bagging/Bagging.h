@@ -12,15 +12,16 @@ class Bagging {
 
 private:
     DecisionSystem<T, V> *ds;
+    unsigned int root;
 
 public:
-    explicit Bagging(DecisionSystem<T, V>*);
+    explicit Bagging(DecisionSystem<T, V>*, unsigned int);
     std::tuple<unsigned long int, KnnScore<V>> findBestK(unsigned int, unsigned long int, unsigned long int, U (*metric)(std::vector<T>*, std::vector<T>*));
 };
 
 
 template<typename T, typename V, typename U>
-Bagging<T, V, U>::Bagging(DecisionSystem<T, V> *decisionSystem) {
+Bagging<T, V, U>::Bagging(DecisionSystem<T, V> *decisionSystem, unsigned int root) : root(root) {
 
     this->ds = decisionSystem;
 }
@@ -31,13 +32,13 @@ std::tuple<unsigned long int, KnnScore<V>> Bagging<T, V, U>::findBestK(unsigned 
     std::vector<unsigned long int> scores(maxK - minK + 1);
     unsigned long int currentBestK;
 
-    Bootstrap<T, V, U> bootstrap(this->ds);
+    Bootstrap<T, V, U> bootstrap(this->ds, time(NULL));
 
     DecisionSystem<T, V> masterTrainingSet = bootstrap.getTrainingSet();
     DecisionSystem<T, V> masterTestSet = bootstrap.getTestSet();
 
     for (unsigned int i = 0; i < iterations; i++) {
-        Bootstrap<T, V, U> tmpBootstrap(&masterTrainingSet);
+        Bootstrap<T, V, U> tmpBootstrap(&masterTrainingSet, root);
 
         currentBestK = std::get<0>(tmpBootstrap.getBestK(minK, maxK, metric));
         scores[currentBestK - minK]++;
