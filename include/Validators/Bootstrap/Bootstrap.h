@@ -22,7 +22,7 @@ private:
     std::vector<unsigned long int> getTestIds(std::vector<unsigned long int>*);
 
 public:
-    Bootstrap(DecisionSystem<T, V>*);
+    explicit Bootstrap(DecisionSystem<T, V>*);
     std::tuple<unsigned long int, double> getBestK(unsigned long int, unsigned long int, U (*metric)(std::vector<T>*, std::vector<T>*));
     DecisionSystem<T, V> getTrainingSet();
     DecisionSystem<T, V> getTestSet();
@@ -34,7 +34,9 @@ Bootstrap<T, V, U>::Bootstrap(DecisionSystem<T, V> *decisionSystem) {
 
     this->ds = decisionSystem;
 
-    this->trainingObjectsId = SharedMethods<unsigned long int>::getUniqueElements(this->getTrainingIds());
+    std::vector<unsigned long int> trainingIds = this->getTrainingIds();
+
+    this->trainingObjectsId = SharedMethods<unsigned long int>::getUniqueElements(&trainingIds);
     this->testObjectsId = this->getTestIds(&this->trainingObjectsId);
 }
 
@@ -50,7 +52,7 @@ std::vector<unsigned long int> Bootstrap<T, V, U>::getTrainingIds() {
         samples.push_back(rand() % objectCount);
     }
 
-    return SharedMethods<unsigned long int>::getUniqueElements(samples);
+    return SharedMethods<unsigned long int>::getUniqueElements(&samples);
 }
 
 template<typename T, typename V, typename U>
@@ -68,7 +70,7 @@ std::vector<unsigned long int> Bootstrap<T, V, U>::getTestIds(std::vector<unsign
 }
 
 template<typename T, typename V, typename U>
-std::tuple<unsigned long int, double> Bootstrap<T, V, U>::getBestK(unsigned long int minK, unsigned long int maxK, U (*metric)(std::vector<T> *, std::vector<T> *)) {
+std::tuple<unsigned long int, double> Bootstrap<T, V, U>::getBestK(unsigned long int minK, unsigned long int maxK, U (*metric)(std::vector<T>*, std::vector<T>*)) {
 
     DecisionSystem<T, V> trainingSystem = this->ds->getDecisionSystemByIds(&this->trainingObjectsId);
     DecisionSystem<T, V> testSystem = this->ds->getDecisionSystemByIds(&this->testObjectsId);

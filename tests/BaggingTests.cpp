@@ -3,7 +3,7 @@
 
 #include "../include/DecisionSystem/DecisionSystem.h"
 #include "../include/Shared/Metrics.h"
-#include "../include/Validators/Bagging/Bagging.h"
+#include "../include/Ensembles/Bagging/Bagging.h"
 
 TEST(Bagging, BestKAndGlobalTPRAreGood) {
 

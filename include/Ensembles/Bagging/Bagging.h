@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "../../DecisionSystem/DecisionSystem.h"
-#include "../Bootstrap/Bootstrap.h"
+#include "../../Validators/Bootstrap/Bootstrap.h"
 #include "../../Classifiers/Knn/KnnScore.h"
 
 template<typename T, typename V, typename U>
@@ -12,8 +12,6 @@ class Bagging {
 
 private:
     DecisionSystem<T, V> *ds;
-    unsigned int masterRoot;
-    unsigned int root;
 
 public:
     explicit Bagging(DecisionSystem<T, V>*);

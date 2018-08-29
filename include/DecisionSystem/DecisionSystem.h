@@ -26,7 +26,7 @@ private:
 
 public:
     DecisionSystem(std::string, char, unsigned long int);
-    DecisionSystem(std::vector<std::vector<T>>, std::vector<V>*, unsigned long int);
+    DecisionSystem(std::vector<std::vector<T>>*, std::vector<V>*, unsigned long int);
     std::vector<std::vector<T>> getAll();
     T get(unsigned long int, unsigned long int);
     unsigned long int getObjectCount();
@@ -48,6 +48,17 @@ DecisionSystem<T, V>::DecisionSystem(std::string fileName, char delimitter, unsi
     this->readTxtFile(fileName, delimitter);
 }
 
+template<typename T, typename V>
+DecisionSystem<T, V>::DecisionSystem(std::vector<std::vector<T>> *objects, std::vector<V> *decisions, unsigned long int decisionCol)
+    : decisionCol(decisionCol) {
+
+        for (std::vector<T> object : *objects) {
+            this->ds.push_back(object);
+        }
+
+        this->decisionVec = std::vector<V>(*decisions);
+}
+
 template <typename T, typename V>
 void DecisionSystem<T, V>::readTxtFile(const std::string &fileName, char delimitter) {
 
@@ -60,16 +71,6 @@ void DecisionSystem<T, V>::readTxtFile(const std::string &fileName, char delimit
     }
 }
 
-template<typename T, typename V>
-DecisionSystem<T, V>::DecisionSystem(std::vector<std::vector<T>> objects, std::vector<V> *decisions, unsigned long int decisionCol)
-    : decisionCol(decisionCol) {
-
-        for (unsigned long int i = 0; i < objects.size(); i++) {
-            this->ds.push_back(objects[i]);
-        }
-
-        this->decisionVec = std::vector<V>(*decisions);
-}
 
 template <typename T, typename V>
 void DecisionSystem<T, V>::addRow(std::vector<T> *row) {
@@ -213,7 +214,7 @@ DecisionSystem<T, V> DecisionSystem<T, V>::getDecisionSystemByIds(std::vector<un
     std::vector<std::vector<T>> objects = this->getObjectsById(objectsId);
     std::vector<V> decisions = this->getDecisionsById(objectsId);
 
-    DecisionSystem<T, V> decisionSystem(objects, &decisions, this->decisionCol);
+    DecisionSystem<T, V> decisionSystem(&objects, &decisions, this->decisionCol);
 
     return decisionSystem;
 }

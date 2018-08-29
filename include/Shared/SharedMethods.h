@@ -10,7 +10,7 @@ class SharedMethods {
 
 public:
     static bool compareElems(V, V);
-    static std::vector<V> getUniqueElements(std::vector<V>);
+    static std::vector<V> getUniqueElements(std::vector<V>*);
     static unsigned long int getIdOfMaxValueFromMap(std::unordered_map<unsigned long int, V> map);
 };
 
@@ -22,9 +22,9 @@ bool SharedMethods<V>::compareElems(V i, V j) {
 }
 
 template<typename V>
-std::vector<V> SharedMethods<V>::getUniqueElements(std::vector<V> elements) {
+std::vector<V> SharedMethods<V>::getUniqueElements(std::vector<V> *elements) {
 
-    std::vector<V> uniqueElements(elements);
+    std::vector<V> uniqueElements(*elements);
 
     std::sort(uniqueElements.begin(), uniqueElements.end());
     uniqueElements.erase(std::unique(uniqueElements.begin(), uniqueElements.end()), uniqueElements.end());

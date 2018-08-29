@@ -16,9 +16,9 @@ class Knn {
 private:
     DecisionSystem<T, V> *ds;
 
-    std::vector<U> calculateDistance(std::vector<T>*, std::vector<std::vector<T>>, U (*metric)(std::vector<T>*, std::vector<T>*));
+    std::vector<U> calculateDistance(std::vector<T>*, std::vector<std::vector<T>>*, U (*metric)(std::vector<T>*, std::vector<T>*));
     std::vector<U> getFirstKElements(std::vector<U>*, unsigned long int);
-    V getDecision(std::vector<std::vector<U>>, std::vector<V>*);
+    V getDecision(std::vector<std::vector<U>>*, std::vector<V>*);
     bool checkUniqueDistances(std::vector<U>*);
     V classifyObject(std::vector<T>*, U (*metric)(std::vector<T>*, std::vector<T>*), unsigned long int);
 
@@ -42,12 +42,12 @@ Knn<T, V, U>::Knn(DecisionSystem<T, V> *ds) {
 }
 
 template<typename T, typename V, typename U>
-std::vector<U> Knn<T, V, U>::calculateDistance(std::vector<T> *testObject, std::vector<std::vector<T>> trainObjects,
+std::vector<U> Knn<T, V, U>::calculateDistance(std::vector<T> *testObject, std::vector<std::vector<T>> *trainObjects,
                                             U (*metric)(std::vector<T> *, std::vector<T> *)) {
 
     std::vector<U> results;
 
-    for (std::vector<T> object : trainObjects) {
+    for (std::vector<T> object : *trainObjects) {
         results.push_back(metric(testObject, &object));
     }
 
@@ -70,13 +70,13 @@ std::vector<U> Knn<T, V, U>::getFirstKElements(std::vector<U> *vec, unsigned lon
 }
 
 template<typename T, typename V, typename U>
-V Knn<T, V, U>::getDecision(std::vector<std::vector<U>> distances, std::vector<V> *decisions) {
+V Knn<T, V, U>::getDecision(std::vector<std::vector<U>> *distances, std::vector<V> *decisions) {
 
     std::vector<U> sums;
     U minVal = U();
     unsigned long int minId = 0;
 
-    for (std::vector<U> distance : distances) {
+    for (std::vector<U> distance : *distances) {
         T sum = 0;
 
         for (T n : distance) {
@@ -119,13 +119,16 @@ V Knn<T, V, U>::classifyObject(std::vector<T> *testObject, U (*metric)(std::vect
     std::vector<std::vector<U>> distances;
     std::vector<U> distance;
     std::vector<V> decisionClasses = this->ds->getDecisionClasses();
+    std::vector<std::vector<T>> objectsByDecisionClasses = {};
 
     for (V decisionClass : decisionClasses) {
-        distance = this->calculateDistance(testObject, this->ds->getObjectsByDecisionClass(decisionClass), metric);
+
+        objectsByDecisionClasses = this->ds->getObjectsByDecisionClass(decisionClass);
+        distance = this->calculateDistance(testObject, &objectsByDecisionClasses, metric);
         distances.push_back(this->getFirstKElements(&distance, k));
     }
 
-    return this->getDecision(distances, &decisionClasses);
+    return this->getDecision(&distances, &decisionClasses);
 }
 
 template<typename T, typename V, typename U>

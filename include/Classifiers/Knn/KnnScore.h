@@ -103,7 +103,7 @@ double KnnScore<V>::getTPR(V decisionClass) {
 template<typename V>
 double KnnScore<V>::getGlobalTPR() {
 
-    std::vector<V> uniqueDecisions = SharedMethods<V>::getUniqueElements(this->realDecisions);
+    std::vector<V> uniqueDecisions = SharedMethods<V>::getUniqueElements(&this->realDecisions);
 
     unsigned long int globalTrueClassified = 0;
     unsigned long int globalFalseClassified = 0;
